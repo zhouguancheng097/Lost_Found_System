@@ -1,0 +1,382 @@
+{
+  "model": "BAAI/bge-small-zh-v1.5",
+  "revision": "7999e1d3359715c523056ef9478215996d62a620",
+  "documents": 18,
+  "queries": 15,
+  "note": "人工构造小样本；比较原始语义排序与词片段基线，非正式业务准确率；第一条含文档向量冷缓存开销。",
+  "results": [
+    {
+      "query": "学生卡",
+      "relevant": [
+        1
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        1,
+        8,
+        4,
+        13,
+        14
+      ],
+      "latency_ms": 334.53
+    },
+    {
+      "query": "吃饭用的卡丢了",
+      "relevant": [
+        1
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        1,
+        8,
+        17,
+        10,
+        2
+      ],
+      "latency_ms": 14.84
+    },
+    {
+      "query": "黑色折叠伞",
+      "relevant": [
+        2
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        2,
+        16,
+        12,
+        9,
+        6
+      ],
+      "latency_ms": 14.15
+    },
+    {
+      "query": "装电脑的灰色包",
+      "relevant": [
+        5
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        5,
+        13,
+        9,
+        11,
+        12
+      ],
+      "latency_ms": 12.04
+    },
+    {
+      "query": "可以保温的蓝色水壶",
+      "relevant": [
+        6
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        6,
+        14,
+        3,
+        16,
+        5
+      ],
+      "latency_ms": 29.41
+    },
+    {
+      "query": "白色蓝牙耳塞和盒子",
+      "relevant": [
+        3
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        3,
+        17,
+        10,
+        6,
+        12
+      ],
+      "latency_ms": 13.74
+    },
+    {
+      "query": "带熊挂饰的开门钥匙",
+      "relevant": [
+        4
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        4,
+        12,
+        2,
+        18,
+        8
+      ],
+      "latency_ms": 14.56
+    },
+    {
+      "query": "微积分教材，上面写了笔记",
+      "relevant": [
+        7
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 0.5
+      },
+      "semantic_top5": [
+        7,
+        18,
+        5,
+        13,
+        9
+      ],
+      "latency_ms": 31.98
+    },
+    {
+      "query": "黑色华为mate60",
+      "relevant": [
+        9
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        9,
+        17,
+        10,
+        12,
+        11
+      ],
+      "latency_ms": 29.09
+    },
+    {
+      "query": "白色苹果iphone15",
+      "relevant": [
+        10
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        10,
+        9,
+        3,
+        17,
+        12
+      ],
+      "latency_ms": 13.07
+    },
+    {
+      "query": "存文件的银色小设备",
+      "relevant": [
+        12
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        12,
+        4,
+        13,
+        8,
+        3
+      ],
+      "latency_ms": 33.61
+    },
+    {
+      "query": "圆框近视镜",
+      "relevant": [
+        15
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        15,
+        9,
+        17,
+        12,
+        7
+      ],
+      "latency_ms": 29.31
+    },
+    {
+      "query": "黄色贴纸的透明杯子",
+      "relevant": [
+        14
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        14,
+        6,
+        9,
+        13,
+        10
+      ],
+      "latency_ms": 16.04
+    },
+    {
+      "query": "蓝色带花纹雨伞",
+      "relevant": [
+        16
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        16,
+        2,
+        4,
+        12,
+        6
+      ],
+      "latency_ms": 29.12
+    },
+    {
+      "query": "羊毛红围巾",
+      "relevant": [
+        18
+      ],
+      "semantic": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "keyword": {
+        "recall_at_5": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0
+      },
+      "semantic_top5": [
+        18,
+        8,
+        12,
+        4,
+        13
+      ],
+      "latency_ms": 31.21
+    }
+  ],
+  "semantic": {
+    "recall_at_5": 1.0,
+    "recall_at_10": 1.0,
+    "mrr": 1.0
+  },
+  "keyword": {
+    "recall_at_5": 1.0,
+    "recall_at_10": 1.0,
+    "mrr": 0.9667
+  },
+  "first_query_ms": 334.53,
+  "warm_average_ms": 22.3,
+  "warm_max_ms": 33.61
+}

@@ -1,0 +1,126 @@
+{
+  "ok": true,
+  "date": "2026-11-19",
+  "database": "target/optimization-data/lostfound.db",
+  "model": "BAAI/bge-small-zh-v1.5",
+  "queries": [
+    {
+      "query": "苹果",
+      "total": 1,
+      "titles": [
+        "苹果 iPhone 15 手机"
+      ],
+      "scores": [
+        67.7
+      ]
+    },
+    {
+      "query": "Apple",
+      "total": 1,
+      "titles": [
+        "苹果 iPhone 15 手机"
+      ],
+      "scores": [
+        53.3
+      ]
+    },
+    {
+      "query": "iPhone15",
+      "total": 1,
+      "titles": [
+        "苹果 iPhone 15 手机"
+      ],
+      "scores": [
+        53.3
+      ]
+    },
+    {
+      "query": "华为",
+      "total": 1,
+      "titles": [
+        "华为 Mate 60 手机"
+      ],
+      "scores": [
+        70.4
+      ]
+    },
+    {
+      "query": "黑色雨伞",
+      "total": 1,
+      "titles": [
+        "黑色折叠雨伞"
+      ],
+      "scores": [
+        74.9
+      ]
+    },
+    {
+      "query": "学生卡",
+      "total": 1,
+      "titles": [
+        "蓝色卡套校园卡"
+      ],
+      "scores": [
+        77.4
+      ]
+    },
+    {
+      "query": "吃饭用的卡丢了",
+      "total": 1,
+      "titles": [
+        "蓝色卡套校园卡"
+      ],
+      "scores": [
+        30.7
+      ]
+    },
+    {
+      "query": "装电脑的灰色包",
+      "total": 1,
+      "titles": [
+        "灰色笔记本电脑包"
+      ],
+      "scores": [
+        62.7
+      ]
+    },
+    {
+      "query": "蓝色保温杯",
+      "total": 1,
+      "titles": [
+        "蓝色保温杯"
+      ],
+      "scores": [
+        85.2
+      ]
+    },
+    {
+      "query": "可以保温的蓝色水壶",
+      "total": 1,
+      "titles": [
+        "蓝色保温杯"
+      ],
+      "scores": [
+        49.3
+      ]
+    },
+    {
+      "query": "昨天在图书馆丢的黑色雨伞",
+      "total": 1,
+      "titles": [
+        "黑色折叠雨伞"
+      ],
+      "scores": [
+        71.0
+      ]
+    },
+    {
+      "query": "不存在的紫水晶吊坠",
+      "total": 0,
+      "titles": [],
+      "scores": []
+    }
+  ],
+  "session_expiry_and_relogin": true,
+  "strict_filters_paging_privacy": true
+}
