@@ -1,0 +1,19 @@
+{
+  "version": "1.1.1",
+  "app": "D:\\Lost_Found_System\\target\\windows-package\\payload",
+  "count": 7,
+  "checks": [
+    "native GUI closes after cold startup while website and AI remain healthy",
+    "native GUI closes on repeated startup without duplicating services",
+    "demo creates 5 accounts, 16 items, 7 claims with backup and unchanged administrator",
+    "four demo accounts sign in over HTTP and the initially banned account returns 403",
+    "repeated demo initialization preserves modified business states and creates no duplicates",
+    "script reports real failure through its UTF-8 error file without stopping occupied services",
+    "isolated regression services stop cleanly"
+  ],
+  "cold_start_seconds": 34.63,
+  "native_gui_process_exited": true,
+  "installer_finish_button_clicked": false,
+  "other_computers_verified": false,
+  "tested_at": "2026-11-20T16:23:37Z"
+}

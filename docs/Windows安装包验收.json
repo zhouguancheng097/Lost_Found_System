@@ -1,0 +1,39 @@
+{
+  "installer": "D:\\Lost_Found_System\\dist\\Shiguang-Setup-1.1.0-x64.exe",
+  "bytes": 218070301,
+  "sha256": "b180c9bafb8b8ea6701d3831bfbd59660ef05e35d8328a3263a3af8c21f59b0d",
+  "checks": [
+    "EXE installs successfully into a path containing Chinese characters and spaces",
+    "installed program passes all nine isolated startup, AI and safety checks",
+    "upgrade preserves accounts, items, administrator password and uploaded files",
+    "uninstall removes program files while preserving all user data",
+    "reinstall starts successfully with the original accounts and administrator password"
+  ],
+  "count": 5,
+  "runtime_verification": {
+    "app": "D:\\Lost_Found_System\\target\\windows-installer-test\\安装 目录",
+    "data_home": "D:\\Lost_Found_System\\target\\windows-installer-test\\profile\\ShiguangLostFound",
+    "checks": [
+      "private Java/Python environment works without global PATH or Python packages",
+      "website, static assets and bundled AI service become ready",
+      "fresh database contains only a new administrator and no development records",
+      "new randomly generated administrator can sign in",
+      "isolated test account and item can be created in the installed application",
+      "bundled BGE model performs a real semantic ranking",
+      "repeated startup reuses the existing services",
+      "services stop cleanly and the development database remains unchanged",
+      "occupied port produces an error without stopping the unrelated listener"
+    ],
+    "count": 9,
+    "website_port": 18082,
+    "ai_port": 18767,
+    "development_data_unchanged": true,
+    "services_stopped": true,
+    "tested_at": "2026-11-20T15:28:57Z"
+  },
+  "test_installation_removed": true,
+  "test_data_retained_under_target": true,
+  "ui_clicks_verified": false,
+  "other_computers_verified": false,
+  "tested_at": "2026-11-20T15:32:27Z"
+}

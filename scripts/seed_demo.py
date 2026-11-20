@@ -52,7 +52,7 @@ def write_inventory(directory, manifest):
     lines.extend(["", "## 预置申请", "", "| 申请编号 | 物品编号 | 申请人 | 初始状态 |", "|---|---|---|---|"])
     for claim in manifest["claims"]:
         lines.append(f"| {claim['id']} | {claim['item_id']} | {claim['applicant']} | {claim['status']} |")
-    lines.extend(["", "状态和密码描述的是初始化时的情况。操作测试后，不会自动恢复状态或找回已注销账号。重复执行初始化只恢复这份清单，不重置现有业务，也不重复创建数据。", "", "手工用例见项目 docs/手工测试用例.md。图片上传样例：data/demo-files/demo-photo.png；非法样例：data/demo-files/invalid-image.txt。", ""])
+    lines.extend(["", "状态和密码描述的是初始化时的情况。操作测试后，不会自动恢复状态或找回已注销账号。重复执行初始化只恢复这份清单，不重置现有业务，也不重复创建数据。", "", "手工用例见项目 docs/手工测试用例.md。图片上传样例和非法样例位于本清单同目录的 demo-files 文件夹。", ""])
     (directory / "测试账号与数据.md").write_text("\n".join(lines), encoding="utf-8")
 
 

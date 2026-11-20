@@ -1,0 +1,22 @@
+{
+  "installed_app": "C:\\Users\\zgc20\\Desktop\\测试\\ShiguangLostFound",
+  "installer": "D:\\Lost_Found_System\\dist\\Shiguang-Setup-1.1.1-x64.exe",
+  "bytes": 218075493,
+  "installer_sha256": "22b3dbef46ee3c690e7f57a487cf1c28e46dab11d21925ec9622c98ef2570284",
+  "installed_version": "1.1.1",
+  "installed_scripts_match_source": true,
+  "upgrade_preserved_existing_data": true,
+  "administrator_password_preserved": true,
+  "development_database_unchanged": true,
+  "native_gui_exited": true,
+  "startup_seconds": 20.37,
+  "website_and_ai_healthy": true,
+  "active_demo_logins_passed": 4,
+  "banned_demo_login_returns_403": true,
+  "accounts_inventory": "C:\\Users\\zgc20\\AppData\\Local\\ShiguangLostFound\\data\\测试账号与数据.md",
+  "backup_directory": "D:\\Lost_Found_System\\target\\installed-v111-repair",
+  "services_left_running_for_user": true,
+  "tested_at": "2026-11-20T16:30:58Z",
+  "normal_start_command_exited": true,
+  "browser_launch_attempted_after_form_closed": true
+}
