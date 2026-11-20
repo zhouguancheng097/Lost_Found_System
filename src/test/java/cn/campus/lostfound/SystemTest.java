@@ -33,7 +33,60 @@ public class SystemTest {
     Map<String,Object> itemInput(){return data("type","FOUND","title","图书馆黑色折叠雨伞","category","雨伞","description","黑色折叠伞，伞柄有一条挂绳","location","图书馆","event_date",LocalDate.now().minusDays(1).toString(),"contact","秘密联系方式","hidden_features","秘密核验特征","images",List.of());}
     Map<String,Object> openItem(Map<String,Object> owner){Map<String,Object> item=business.createItem(owner,itemInput());business.review(administrator,id(item,"id"),true,"");return db.item(id(item,"id"));}
     Map<String,Object> apply(Map<String,Object> user,Map<String,Object> item){return business.apply(user,id(item,"id"),data("proof","遗失在图书馆，伞柄挂绳里有我的缩写"));}
-    MockHttpSession session(Map<String,Object> user){MockHttpSession result=new MockHttpSession();result.setAttribute("uid",id(user,"id"));result.setAttribute("csrf","test-token");return result;}
+    MockHttpSession session(Map<String,Object> user){MockHttpSession result=new MockHttpSession();result.setAttribute("uid",id(user,"id"));result.setAttribute("session_version",id(user,"session_version"));result.setAttribute("csrf","test-token");return result;}
+    @Test void defaultAdministratorCanLoginWithSixDigitsAndIsNotResetOnStartup() throws Exception {
+        assertTrue(verify("123456",str(db.userByName("admin"),"password_hash")));
+        String before=str(db.userByName("admin"),"password_hash");business.initialize();assertEquals(before,db.userByName("admin").get("password_hash"));
+        MockHttpSession current=new MockHttpSession();current.setAttribute("csrf","test-token");
+        mvc.perform(post("/api/login").session(current).header("X-CSRF-Token","test-token").contentType("application/json").content(JSON.writeValueAsString(data("username","admin","password","123456")))).andExpect(status().isOk());
+    }
+    @Test void oldDatabaseMigrationPreservesRecordsAndIsRepeatable() throws Exception {
+        var source=new org.sqlite.SQLiteDataSource();source.setUrl("jdbc:sqlite:"+Files.createTempFile(Path.of("target"),"old-schema-",".db"));
+        try(var connection=source.getConnection();var statement=connection.createStatement()){
+            statement.executeUpdate("CREATE TABLE users(id INTEGER PRIMARY KEY,username TEXT,password_hash TEXT)");
+            statement.executeUpdate("INSERT INTO users VALUES(7,'existing_user','existing_hash')");
+        }
+        AppConfig.migrateUserSchema(source);AppConfig.migrateUserSchema(source);
+        try(var connection=source.getConnection();var statement=connection.createStatement();var row=statement.executeQuery("SELECT * FROM users WHERE id=7")){
+            assertTrue(row.next());assertEquals("existing_user",row.getString("username"));assertEquals("existing_hash",row.getString("password_hash"));assertEquals("",row.getString("phone"));assertEquals("",row.getString("default_address"));assertEquals(0,row.getInt("session_version"));
+        }
+    }
+    @Test void profileUpdatesKeepOwnershipAndDoNotExposePrivateDetails() throws Exception {
+        var owner=newUser();var item=openItem(owner);var claimant=newUser();var claim=apply(claimant,item);var current=session(owner);
+        var input=data("username",owner.get("username"),"display_name","新的昵称","phone","+86 13800000000","default_address","图书馆二楼","id",claimant.get("id"),"role","ADMIN");
+        mvc.perform(put("/api/account/profile").session(current).header("X-CSRF-Token","test-token").contentType("application/json").content(JSON.writeValueAsString(input))).andExpect(status().isOk());
+        var updated=db.user(id(owner,"id"));assertEquals("新的昵称",updated.get("display_name"));assertEquals("USER",updated.get("role"));assertEquals("+86 13800000000",updated.get("phone"));assertEquals("图书馆二楼",updated.get("default_address"));
+        assertNotEquals("新的昵称",db.user(id(claimant,"id")).get("display_name"));assertEquals(id(owner,"id"),id(db.item(id(item,"id")),"owner_id"));assertEquals(id(claimant,"id"),id(db.claim(id(claim,"id")),"applicant_id"));
+        assertEquals("新的昵称",business.detail(id(item,"id"),null).get("owner_name"));
+        assertFalse(JSON.writeValueAsString(db.publicItems()).contains("13800000000"));assertFalse(search.publicText(db.item(id(item,"id"))).contains("13800000000"));
+        mvc.perform(get("/api/account/profile").session(current)).andExpect(status().isOk()).andExpect(result->{var body=JSON.readTree(result.getResponse().getContentAsByteArray());assertEquals("图书馆二楼",body.get("default_address").asText());assertFalse(body.has("password_hash"));assertFalse(body.has("session_version"));});
+        input.put("phone","");input.put("default_address","");business.updateProfile(updated,input);assertEquals("",db.user(id(owner,"id")).get("phone"));
+    }
+    @Test void profileEnforcesLoginCsrfUniqueAccountsAndCurrentPassword() throws Exception {
+        var user=newUser();var other=newUser();var current=session(user);var input=data("username",other.get("username"),"display_name","修改后的昵称","phone","","default_address","","current_password","wrong");
+        mvc.perform(get("/api/account/profile")).andExpect(status().isUnauthorized());
+        mvc.perform(put("/api/account/profile").session(current).contentType("application/json").content(JSON.writeValueAsString(input))).andExpect(status().isForbidden());
+        assertEquals(400,assertThrows(AppException.class,()->business.updateProfile(user,input)).status);input.put("current_password","TestPassword123");
+        assertEquals(409,assertThrows(AppException.class,()->business.updateProfile(user,input)).status);
+        String renamed="renamed_"+UUID.randomUUID().toString().substring(0,8);input.put("username",renamed.toUpperCase(Locale.ROOT));business.updateProfile(user,input);
+        assertNull(db.userByName(str(user,"username")));assertEquals(id(user,"id"),id(business.login(data("username",renamed,"password","TestPassword123")),"id"));
+        input.put("phone","invalid phone");assertEquals(400,assertThrows(AppException.class,()->business.updateProfile(db.user(id(user,"id")),input)).status);
+        var adminInput=data("username","renamed_admin","display_name","管理员","phone","","default_address","");assertEquals(400,assertThrows(AppException.class,()->business.updateProfile(administrator,adminInput)).status);
+    }
+    @Test void passwordChangeChecksOldPasswordAndConfirmationThenRevokesAllSessions() throws Exception {
+        var user=newUser();var current=session(user);var otherSession=session(user);
+        var input=data("current_password","wrong","new_password","UpdatedPassword123","confirm_password","UpdatedPassword123");
+        assertEquals(400,assertThrows(AppException.class,()->business.changePassword(user,input)).status);input.put("current_password","TestPassword123");input.put("confirm_password","DifferentPassword123");assertThrows(AppException.class,()->business.changePassword(user,input));
+        input.put("new_password","123456");input.put("confirm_password","123456");assertThrows(AppException.class,()->business.changePassword(user,input));
+        input.put("new_password","UpdatedPassword123");input.put("confirm_password","UpdatedPassword123");
+        mvc.perform(post("/api/account/password").session(current).header("X-CSRF-Token","test-token").contentType("application/json").content(JSON.writeValueAsString(input))).andExpect(status().isOk());assertTrue(current.isInvalid());
+        mvc.perform(get("/api/account/profile").session(otherSession)).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/session").session(otherSession)).andExpect(status().isOk()).andExpect(result->assertTrue(JSON.readTree(result.getResponse().getContentAsByteArray()).get("user").isNull()));
+        assertThrows(AppException.class,()->business.login(data("username",user.get("username"),"password","TestPassword123")));
+        assertEquals(id(user,"id"),id(business.login(data("username",user.get("username"),"password","UpdatedPassword123")),"id"));
+        assertFalse(JSON.writeValueAsString(db.logs()).contains("UpdatedPassword123"));
+    }
+    @Test void accountDeletionClearsOptionalPersonalDetails(){var user=newUser();business.updateProfile(user,data("username",user.get("username"),"display_name","待注销用户","phone","13800000000","default_address","自习室"));business.deleteAccount(db.user(id(user,"id")),"TestPassword123");assertEquals("",db.user(id(user,"id")).get("phone"));assertEquals("",db.user(id(user,"id")).get("default_address"));}
     @Test void passwordsAreSaltedAndVerified(){String first=hash("password123"),second=hash("password123");assertNotEquals(first,second);assertTrue(verify("password123",first));assertFalse(verify("wrong",first));}
     @Test void ownershipIsEnforced(){Map<String,Object> owner=newUser(),other=newUser(),item=openItem(owner);assertEquals(403,assertThrows(AppException.class,()->business.editItem(other,id(item,"id"),itemInput())).status);assertEquals(403,assertThrows(AppException.class,()->business.deleteItem(other,id(item,"id"))).status);}
     @Test void hiddenFieldsNeverLeakToPublicOrModel(){Map<String,Object> item=openItem(newUser());Map<String,Object> publicView=business.detail(id(item,"id"),null);assertFalse(publicView.containsKey("contact"));assertFalse(publicView.containsKey("hidden_features"));assertFalse(search.publicText(item).contains("秘密"));assertFalse(db.publicItems().stream().anyMatch(value->value.containsKey("contact")||value.containsKey("hidden_features")));}

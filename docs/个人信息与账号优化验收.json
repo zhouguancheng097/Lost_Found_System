@@ -1,0 +1,19 @@
+{
+  "version": "1.1.2",
+  "checks": [
+    "real HTTP accepts admin / six-character default password",
+    "profile persistence, login rename, optional phone/address and identity/CSRF protection work over HTTP",
+    "password update revokes both real browser sessions and rejects the old password",
+    "optional fields can be cleared and administrator login name stays fixed",
+    "explicit reset creates a consistent original backup and preserves ordinary accounts/business data",
+    "real old-schema database migrates while preserving every account hash and business record count",
+    "repeat startup leaves existing passwords and business data unchanged"
+  ],
+  "count": 7,
+  "services_stopped": true,
+  "backend_tests": 26,
+  "frontend_behavior_checks": 12,
+  "browser_visual_validation": false,
+  "work": "D:\\Lost_Found_System\\target\\account-v112-http",
+  "tested_at": "2026-11-20T18:34:27Z"
+}

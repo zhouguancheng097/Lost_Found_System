@@ -16,10 +16,10 @@ public class Business {
     public void initialize() throws Exception {
         if (db.userByName("admin") == null) {
             String password = System.getenv("LOSTFOUND_ADMIN_PASSWORD");
-            if (password == null || password.length() < 12) password = token();
+            if (password == null || password.length() < 6) password = "123456";
             Map<String,Object> admin = data("username","admin","display_name","系统管理员","password_hash",hash(password),"role","ADMIN","created_at",now());
             db.insertUser(admin);
-            Files.writeString(AppConfig.dataDir().resolve("admin-credentials.txt"),"用户名：admin\n密码：" + password + "\n仅首次初始化生成，请妥善保管。\n");
+            Files.writeString(AppConfig.dataDir().resolve("admin-credentials.txt"),"用户名：admin\n密码：" + password + "\n首次初始化密码；在个人信息页修改密码后，请使用修改后的密码。升级不会自动恢复默认密码。\n");
         }
     }
     public Map<String,Object> active(long userId) {
@@ -30,7 +30,7 @@ public class Business {
     public boolean admin(Map<String,Object> user) { return user != null && "ADMIN".equals(user.get("role")); }
     public void requireAdmin(Map<String,Object> user) { if (!admin(user)) throw fail(403,"此操作需要管理员权限"); }
     public Map<String,Object> safeUser(Map<String,Object> user) {
-        return data("id",user.get("id"),"username",user.get("username"),"display_name",user.get("display_name"),"role",user.get("role"));
+        return data("id",user.get("id"),"username",user.get("username"),"display_name",user.get("display_name"),"role",user.get("role"),"phone",str(user,"phone"),"default_address",str(user,"default_address"));
     }
     @Transactional public Map<String,Object> register(Map<String,Object> input) {
         String username = text(input,"username",3,30);
@@ -44,6 +44,32 @@ public class Business {
         String password = text(input,"password",1,128);
         if (user == null || !verify(password,str(user,"password_hash"))) throw fail(401,"用户名或密码不正确");
         return active(id(user,"id"));
+    }
+    @Transactional public Map<String,Object> updateProfile(Map<String,Object> user,Map<String,Object> input) {
+        Map<String,Object> current = active(id(user,"id"));
+        String username = text(input,"username",3,30).toLowerCase(Locale.ROOT);
+        if (!username.matches("[a-z0-9_]{3,30}")) throw fail(400,"登录账号仅允许 3～30 位字母、数字和下划线");
+        if (!username.equals(current.get("username"))) {
+            if (admin(current)) throw fail(400,"管理员登录账号固定为 admin");
+            if (!verify(text(input,"current_password",1,128),str(current,"password_hash"))) throw fail(400,"当前密码不正确");
+            Map<String,Object> existing = db.userByName(username);
+            if (existing != null && id(existing,"id") != id(current,"id")) throw fail(409,"该登录账号已被使用");
+        }
+        String phone = text(input,"phone",0,25);
+        if (!phone.isEmpty() && (!phone.matches("\\+?[0-9 ()-]{5,25}") || phone.replaceAll("[^0-9]","").length()<5)) throw fail(400,"电话号码格式不正确，可留空或填写含区号的电话号码");
+        Map<String,Object> values = data("id",current.get("id"),"username",username,"display_name",text(input,"display_name",1,30),"phone",phone,"default_address",text(input,"default_address",0,100),"expected_hash",current.get("password_hash"));
+        if (db.updateProfile(values)!=1) throw fail(409,"账号信息已变化，请刷新后重试");
+        audit(current,"修改个人信息","user",id(current,"id"),"");
+        return safeUser(db.user(id(current,"id")));
+    }
+    @Transactional public void changePassword(Map<String,Object> user,Map<String,Object> input) {
+        Map<String,Object> current = active(id(user,"id"));
+        if (!verify(text(input,"current_password",1,128),str(current,"password_hash"))) throw fail(400,"当前密码不正确");
+        String password = text(input,"new_password",8,128);
+        if (!password.equals(text(input,"confirm_password",8,128))) throw fail(400,"两次输入的新密码不一致");
+        if (verify(password,str(current,"password_hash"))) throw fail(400,"新密码不能与当前密码相同");
+        if (db.changePassword(id(current,"id"),str(current,"password_hash"),hash(password))!=1) throw fail(409,"密码已变化，请重新登录");
+        audit(current,"修改密码","user",id(current,"id"),"");
     }
     public Map<String,Object> requireItem(long itemId) {
         Map<String,Object> item = db.item(itemId); if (item == null) throw fail(404,"信息不存在或已删除"); return item;

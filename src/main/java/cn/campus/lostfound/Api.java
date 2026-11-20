@@ -34,13 +34,16 @@ public class Api {
     private Map<String,Object> user(HttpServletRequest request,boolean required) {
         HttpSession session=request.getSession(false);Object uid=session==null?null:session.getAttribute("uid");
         if(uid==null){if(required)throw fail(401,"请先登录");return null;}
-        return business.active(((Number)uid).longValue());
+        Map<String,Object> current=business.active(((Number)uid).longValue());
+        Object version=session.getAttribute("session_version");
+        if ((version instanceof Number number?number.longValue():0)!=id(current,"session_version")) throw fail(401,"登录信息已变更，请重新登录");
+        return current;
     }
     private Map<String,Object> admin(HttpServletRequest request){Map<String,Object> user=user(request,true);business.requireAdmin(user);return user;}
     @GetMapping("/api/session") @ResponseBody public Map<String,Object> session(HttpServletRequest request) {
         HttpSession session=request.getSession(true);if(session.getAttribute("csrf")==null)session.setAttribute("csrf",token());
         Map<String,Object> user=null;
-        try{user=user(request,false);}catch(Support.AppException exception){session.removeAttribute("uid");}
+        try{user=user(request,false);}catch(Support.AppException exception){session.removeAttribute("uid");session.removeAttribute("session_version");}
         return data("user",user==null?null:business.safeUser(user),"csrf",session.getAttribute("csrf"),"categories",CATEGORIES);
     }
     private void limit(HttpServletRequest request) {
@@ -49,8 +52,11 @@ public class Api {
         synchronized(history){history.removeIf(time->time<now-60000);if(history.size()>=12)throw fail(429,"尝试次数过多，请一分钟后再试");history.add(now);}
     }
     @PostMapping("/api/register") @ResponseBody public Object register(@RequestBody Map<String,Object> input,HttpServletRequest request){limit(request);return business.register(input);}
-    @PostMapping("/api/login") @ResponseBody public Object login(@RequestBody Map<String,Object> input,HttpServletRequest request){limit(request);Map<String,Object> user=business.login(input);request.changeSessionId();HttpSession session=request.getSession();session.setAttribute("uid",id(user,"id"));session.setAttribute("csrf",token());return data("user",business.safeUser(user),"csrf",session.getAttribute("csrf"));}
+    @PostMapping("/api/login") @ResponseBody public Object login(@RequestBody Map<String,Object> input,HttpServletRequest request){limit(request);Map<String,Object> user=business.login(input);request.changeSessionId();HttpSession session=request.getSession();session.setAttribute("uid",id(user,"id"));session.setAttribute("session_version",id(user,"session_version"));session.setAttribute("csrf",token());return data("user",business.safeUser(user),"csrf",session.getAttribute("csrf"));}
     @PostMapping("/api/logout") @ResponseBody public Object logout(HttpServletRequest request){request.getSession().invalidate();return data("ok",true);}
+    @GetMapping("/api/account/profile") @ResponseBody public Object profile(HttpServletRequest request){return business.safeUser(user(request,true));}
+    @PutMapping("/api/account/profile") @ResponseBody public Object updateProfile(@RequestBody Map<String,Object> input,HttpServletRequest request){Map<String,Object> current=user(request,true);limit(request);return business.updateProfile(current,input);}
+    @PostMapping("/api/account/password") @ResponseBody public Object changePassword(@RequestBody Map<String,Object> input,HttpServletRequest request){Map<String,Object> current=user(request,true);limit(request);business.changePassword(current,input);request.getSession().invalidate();return data("ok",true);}
     @DeleteMapping("/api/account") @ResponseBody public Object deleteAccount(@RequestBody Map<String,Object> input,HttpServletRequest request){business.deleteAccount(user(request,true),text(input,"password",1,128));request.getSession().invalidate();return data("ok",true);}
     @GetMapping("/api/items") @ResponseBody public Object items(@RequestParam Map<String,String> filters){return search.search(filters);}
     @GetMapping("/api/items/{id}") @ResponseBody public Object detail(@PathVariable long id,HttpServletRequest request){return business.detail(id,user(request,false));}

@@ -27,7 +27,20 @@ public class AppConfig implements WebMvcConfigurer {
         SQLiteDataSource source = new SQLiteDataSource(config);
         source.setUrl("jdbc:sqlite:" + dataDir().resolve("lostfound.db"));
         new ResourceDatabasePopulator(new ClassPathResource("schema.sql")).execute(source);
+        migrateUserSchema(source);
         return source;
+    }
+    static void migrateUserSchema(DataSource source) throws java.sql.SQLException {
+        try (var connection = source.getConnection(); var statement = connection.createStatement()) {
+            var columns = new java.util.HashSet<String>();
+            try (var result = statement.executeQuery("PRAGMA table_info(users)")) {
+                while (result.next()) columns.add(result.getString("name"));
+            }
+            for (String name : java.util.List.of("phone", "default_address", "session_version")) {
+                if (!columns.contains(name)) statement.executeUpdate("ALTER TABLE users ADD COLUMN " + name +
+                    (name.equals("session_version") ? " INTEGER NOT NULL DEFAULT 0" : " TEXT NOT NULL DEFAULT ''"));
+            }
+        }
     }
     @Bean public SqlSessionFactoryBean sqlSessionFactory(DataSource source) {
         SqlSessionFactoryBean factory = new SqlSessionFactoryBean(); factory.setDataSource(source); return factory;

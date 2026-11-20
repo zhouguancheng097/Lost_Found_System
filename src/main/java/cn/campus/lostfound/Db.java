@@ -10,8 +10,10 @@ public interface Db {
     @Select("SELECT id,username,display_name,role,status,ban_reason,created_at FROM users ORDER BY id DESC") List<Map<String,Object>> users();
     @Insert("INSERT INTO users(username,display_name,password_hash,role,created_at) VALUES(#{username},#{display_name},#{password_hash},#{role},#{created_at})")
     @Options(useGeneratedKeys=true,keyProperty="id") int insertUser(Map<String,Object> values);
+    @Update("UPDATE users SET username=#{username},display_name=#{display_name},phone=#{phone},default_address=#{default_address} WHERE id=#{id} AND status='ACTIVE' AND password_hash=#{expected_hash}") int updateProfile(Map<String,Object> values);
+    @Update("UPDATE users SET password_hash=#{hash},session_version=session_version+1 WHERE id=#{id} AND status='ACTIVE' AND password_hash=#{expected}") int changePassword(@Param("id") long id,@Param("expected") String expected,@Param("hash") String hash);
     @Update("UPDATE users SET status=#{status},ban_reason=#{reason} WHERE id=#{id} AND role='USER' AND status != 'DELETED'") int userStatus(@Param("id") long id,@Param("status") String status,@Param("reason") String reason);
-    @Update("UPDATE users SET status='DELETED',username='deleted:'||id,display_name='已注销用户',password_hash='',ban_reason='' WHERE id=#{id} AND role='USER' AND status!='DELETED'") int anonymize(long id);
+    @Update("UPDATE users SET status='DELETED',username='deleted:'||id,display_name='已注销用户',password_hash='',ban_reason='',phone='',default_address='',session_version=session_version+1 WHERE id=#{id} AND role='USER' AND status!='DELETED'") int anonymize(long id);
     @Select("SELECT * FROM items WHERE id=#{id} AND deleted=0") Map<String,Object> item(long id);
     @Select("SELECT i.*,u.display_name AS owner_name FROM items i JOIN users u ON u.id=i.owner_id WHERE i.deleted=0 ORDER BY i.updated_at DESC,i.id DESC") List<Map<String,Object>> allItems();
     @Select("SELECT i.id,i.owner_id,i.type,i.title,i.category,i.description,i.location,i.event_date,i.status,i.created_at,i.updated_at,u.display_name AS owner_name FROM items i JOIN users u ON u.id=i.owner_id WHERE i.deleted=0 AND u.status='ACTIVE' AND i.status IN ('OPEN','HANDOVER','CLAIMED','RESOLVED','CLOSED') ORDER BY i.updated_at DESC,i.id DESC") List<Map<String,Object>> publicItems();
